@@ -1,7 +1,7 @@
 {
     "intents": [
         {
-           "tag": "greeting",
+           "tag": "greetings",
            "patterns": [
               "Hi",
               "How are you?",
@@ -261,7 +261,7 @@
             "responses": ["I am Fine, Thank You", "Yes, Everything is ok. Thank You for asking"]
         },
         {
-          "tag": "item",
+          "tag": "product_inquiry",
           "patterns": ["Do you have", "Is there", "Can I buy", "I'm looking for", "I want to buy", "I like to buy"],
           "responses": ["Let me check that for you."]
         },
