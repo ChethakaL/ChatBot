@@ -8,7 +8,7 @@ from pymongo import MongoClient
 app = Flask(__name__)
 app.secret_key = os.urandom(
     24)  # It's better to use a fixed secret key for session consistency across restarts during development
-
+user_sessions = {}
 # Connect to MongoDB
 client = MongoClient("mongodb+srv://chethakasl:03dDAhSzTu7Um91D@cluster0.9jcbhec.mongodb.net/")
 db = client['test']
@@ -22,12 +22,19 @@ with open('static/data.json', 'r') as file:
 
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
-    user_message = request.json['message']
-    print(f"User message: {user_message}")  # Log user message
+    data = request.json
+    user_message = data['message']
+    user_id = data['user_id']
+    print(f"User message: {user_message,user_id}")  # Log user message
 
-    # Initialize session if not already exists
-    if 'conversation_state' not in session:
-        session['conversation_state'] = {'intent': None, 'product_name': None}
+    #TODO  Previous code
+    # if 'conversation_state' not in session:
+    #     session['conversation_state'] = {'intent': None, 'product_name': None}
+
+    # Initialize or retrieve user session
+    if user_id not in user_sessions:
+        user_sessions[user_id] = {'intent': None, 'product_name': None}
+    session = user_sessions[user_id]
 
     # Initialize bot_response with a default value
     bot_response = "Sorry, I didn't understand. Can you please rephrase your question?"
@@ -37,8 +44,8 @@ def chatbot():
     print(f"Detected intent: {intent}, entities: {entities}")  # Log intent and entities
 
     # Retrieve previous conversation state
-    prev_intent = session['conversation_state']['intent']
-    product_name = session['conversation_state']['product_name']
+    prev_intent = session['intent']
+    product_name = session['product_name']
     print(f"Previous intent: {prev_intent}, product name: {product_name}")  # Log previous state
 
     # Check if intent is detected
@@ -48,7 +55,8 @@ def chatbot():
             if product_entity:
                 product_name = product_entity[0]['value']
                 # Update the conversation state with the new product
-                session['conversation_state'] = {'intent': intent.lower(), 'product_name': product_name}
+                session['intent'] = intent.lower()
+                session['product_name'] = product_name
 
                 # Query MongoDB for the product
                 product_in_db = collection.find_one({"name": {"$regex": product_name, "$options": "i"}})
@@ -91,6 +99,8 @@ def chatbot():
         bot_response = "Sorry, I didn't understand. Can you please rephrase your question?"
 
     print(f"Bot response: {bot_response}")  # Log the final bot response
+    user_sessions[user_id] = session
+
     return jsonify({"response": bot_response})
 
 if __name__ == "__main__":
