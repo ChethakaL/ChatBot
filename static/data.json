@@ -275,6 +275,18 @@
               "Here are the available colors for [product]: [list of colors].",
               "We have [list of colors] available for [product]."
           ]
+      },
+      {
+          "tag": "sizes",
+          "patterns": [
+              "What sizes do you have for [product]?",
+              "Can you tell me the available sizes?",
+              "Do you have [size] for this product?"
+          ],
+          "responses": [
+              "Here are the available sizes for [product]: [list of sizes].",
+              "We have [list of sizes] available for [product]."
+          ]
       }
 
     ]
