@@ -2,7 +2,7 @@ module.exports = {
   apps: [{
     name: 'infigo-chatbot',
     script: 'app.py',
-    interpreter: 'python3',
+    interpreter: './venv/bin/python',
     args: 'run',
     instances: 1,
     autorestart: true,

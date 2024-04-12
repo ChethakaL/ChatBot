@@ -1,11 +1,13 @@
 import random
-from flask import Flask, request, jsonify, session
-from chatbot import wit_ai  # Ensure this is correctly implemented
+from flask import Flask, request, jsonify
+from chatbot import wit_ai
 import json
 import os
 from pymongo import MongoClient
+from description_generator import DescriptionGenerator
 
 app = Flask(__name__)
+generator = DescriptionGenerator()
 app.secret_key = os.urandom(
     24)  # It's better to use a fixed secret key for session consistency across restarts during development
 user_sessions = {}
@@ -20,12 +22,36 @@ with open('static/data.json', 'r') as file:
     intents = {intent['tag']: intent for intent in data['intents']}
 
 
+@app.route('/generate-description', methods=['POST'])
+def generate_description():
+    # Check if the image file is in the request
+    if 'image' not in request.files:
+        return jsonify({"error": "No image provided"}), 400
+
+    # Extract product attributes from the form data
+    image = request.files['image']
+    productName = request.form.get('productName')
+    productType = request.form.get('productType')
+    productPrice = request.form.get('productPrice')
+    sizesAvailable = request.form.get('sizesAvailable')
+    colorsAvailable = request.form.get('colorsAvailable')
+
+    # Check for missing product attributes
+    if not all([productName, productType, productPrice, sizesAvailable, colorsAvailable]):
+        return jsonify({"error": "Missing product attributes"}), 400
+
+    # Use the generator to create a description based on the product attributes and the image
+    description = generator.generate(image, productName, productType, productPrice, sizesAvailable, colorsAvailable)
+    return jsonify({"description": description})
+
+
+
 @app.route('/chatbot', methods=['POST'])
 def chatbot():
     data = request.json
     user_message = data['message']
     user_id = data['user_id']
-    print(f"User message: {user_message,user_id}")  # Log user message
+    print(f"User message: {user_message,user_id}")
 
     #TODO  Previous code
     # if 'conversation_state' not in session:
