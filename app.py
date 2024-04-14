@@ -92,24 +92,22 @@ def chatbot():
                 else:
                     # If product is not found, inform the user
                     bot_response = f"Sorry, we don't have {product_name} in our inventory."
-
         elif intent.lower() == 'colors' and product_name:
             result = collection.find_one({"name": {"$regex": product_name, "$options": "i"}})
-            if result:
-                colors = result.get('colours', [])
+            if result and 'stocks' in result:
+                colors = [stock['color'] for stock in result['stocks'] if 'color' in stock]
                 if colors:
-                    bot_response = f"Available colors for {product_name}: {', '.join(colors)}."
+                    bot_response = f"Available colors for {product_name}: {', '.join(set(colors))}."
                 else:
                     bot_response = f"Sorry, we do not have information about colors for {product_name}."
             else:
                 bot_response = "Please inquire about a product before asking about its colors."
         elif intent.lower() == 'sizes' and product_name:
-            # New block to handle size inquiries
             result = collection.find_one({"name": {"$regex": product_name, "$options": "i"}})
-            if result:
-                sizes = result.get('size', [])  # Assuming 'sizes' is a field in your MongoDB documents
+            if result and 'stocks' in result:
+                sizes = [stock['size'] for stock in result['stocks'] if 'size' in stock]
                 if sizes:
-                    bot_response = f"Available sizes for {product_name}: {', '.join(sizes)}."
+                    bot_response = f"Available sizes for {product_name}: {', '.join(set(sizes))}."
                 else:
                     bot_response = f"Sorry, we do not have information about sizes for {product_name}."
             else:
