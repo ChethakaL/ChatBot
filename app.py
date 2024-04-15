@@ -22,7 +22,12 @@ with open('static/data.json', 'r') as file:
     intents = {intent['tag']: intent for intent in data['intents']}
 
 
-@app.route('/generate-description', methods=['POST'])
+@app.route('/ai', methods=['GET'])
+def home():
+    return "AI is running"
+
+
+@app.route('/ai/generate-description', methods=['POST'])
 def generate_description():
     # Check if the image file is in the request
     if 'image' not in request.files:
@@ -46,7 +51,7 @@ def generate_description():
 
 
 
-@app.route('/chatbot', methods=['POST'])
+@app.route('/ai/chatbot', methods=['POST'])
 def chatbot():
     data = request.json
     user_message = data['message']
